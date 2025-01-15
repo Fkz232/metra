@@ -1,0 +1,188 @@
+-- Criar GUI
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local BalloonButton = Instance.new("TextButton")
+local AppleButton = Instance.new("TextButton")
+local BlackHoleButton = Instance.new("TextButton")
+local EmotesButton = Instance.new("TextButton")
+
+local BlackHoleFrame = Instance.new("Frame")
+local BlackHoleOn = Instance.new("TextButton")
+local BlackHoleOff = Instance.new("TextButton")
+
+local EmotesFrame = Instance.new("ScrollingFrame")
+
+local blackHoleActive = false
+local blackHolePart = nil
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+Frame.Size = UDim2.new(0, 300, 0, 400)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -200)
+Frame.BorderSizePixel = 2
+Frame.Active = true
+Frame.Draggable = true
+
+Title.Parent = Frame
+Title.Text = "Script Criado por Anjo Metraton"
+Title.Size = UDim2.new(1, 0, 0.2, 0)
+Title.BackgroundColor3 = Color3.new(1, 1, 1)
+Title.TextColor3 = Color3.new(1, 0, 0)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextScaled = true
+
+spawn(function()
+	while wait(0.1) do
+		Title.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
+	end
+end)
+
+BalloonButton.Parent = Frame
+BalloonButton.Text = "Balão"
+BalloonButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+BalloonButton.Position = UDim2.new(0.1, 0, 0.25, 0)
+BalloonButton.BackgroundColor3 = Color3.new(1, 1, 1)
+BalloonButton.TextColor3 = Color3.new(0, 0, 0)
+BalloonButton.Font = Enum.Font.SourceSansBold
+BalloonButton.TextScaled = true
+
+AppleButton.Parent = Frame
+AppleButton.Text = "Maçã"
+AppleButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+AppleButton.Position = UDim2.new(0.1, 0, 0.4, 0)
+AppleButton.BackgroundColor3 = Color3.new(1, 1, 1)
+AppleButton.TextColor3 = Color3.new(0, 0, 0)
+AppleButton.Font = Enum.Font.SourceSansBold
+AppleButton.TextScaled = true
+
+BlackHoleButton.Parent = Frame
+BlackHoleButton.Text = "Black Hole"
+BlackHoleButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+BlackHoleButton.Position = UDim2.new(0.1, 0, 0.55, 0)
+BlackHoleButton.BackgroundColor3 = Color3.new(1, 1, 1)
+BlackHoleButton.TextColor3 = Color3.new(0, 0, 0)
+BlackHoleButton.Font = Enum.Font.SourceSansBold
+BlackHoleButton.TextScaled = true
+
+EmotesButton.Parent = Frame
+EmotesButton.Text = "Emotes"
+EmotesButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+EmotesButton.Position = UDim2.new(0.1, 0, 0.7, 0)
+EmotesButton.BackgroundColor3 = Color3.new(1, 1, 1)
+EmotesButton.TextColor3 = Color3.new(0, 0, 0)
+EmotesButton.Font = Enum.Font.SourceSansBold
+EmotesButton.TextScaled = true
+
+BlackHoleFrame.Parent = ScreenGui
+BlackHoleFrame.Visible = false
+BlackHoleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+BlackHoleFrame.Size = UDim2.new(0, 300, 0, 200)
+BlackHoleFrame.Position = UDim2.new(0.5, -150, 0.5, 100)
+BlackHoleFrame.BorderSizePixel = 2
+
+BlackHoleOn.Parent = BlackHoleFrame
+BlackHoleOn.Text = "On"
+BlackHoleOn.Size = UDim2.new(0.4, 0, 0.5, 0)
+BlackHoleOn.Position = UDim2.new(0.05, 0, 0.25, 0)
+BlackHoleOn.BackgroundColor3 = Color3.new(0, 1, 0)
+BlackHoleOn.TextColor3 = Color3.new(0, 0, 0)
+BlackHoleOn.Font = Enum.Font.SourceSansBold
+BlackHoleOn.TextScaled = true
+
+BlackHoleOff.Parent = BlackHoleFrame
+BlackHoleOff.Text = "Off"
+BlackHoleOff.Size = UDim2.new(0.4, 0, 0.5, 0)
+BlackHoleOff.Position = UDim2.new(0.55, 0, 0.25, 0)
+BlackHoleOff.BackgroundColor3 = Color3.new(1, 0, 0)
+BlackHoleOff.TextColor3 = Color3.new(0, 0, 0)
+BlackHoleOff.Font = Enum.Font.SourceSansBold
+BlackHoleOff.TextScaled = true
+
+EmotesFrame.Parent = ScreenGui
+EmotesFrame.Visible = false
+EmotesFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+EmotesFrame.Size = UDim2.new(0, 300, 0, 400)
+EmotesFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
+EmotesFrame.ScrollBarThickness = 10
+
+local emotes = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("EmoteTriggers")
+
+for i, emote in ipairs(emotes:GetChildren()) do
+	local emoteButton = Instance.new("TextButton")
+	emoteButton.Parent = EmotesFrame
+	emoteButton.Text = emote.Name
+	emoteButton.Size = UDim2.new(1, -10, 0, 50)
+	emoteButton.Position = UDim2.new(0, 5, 0, (i - 1) * 60)
+	emoteButton.BackgroundColor3 = Color3.new(1, 1, 1)
+	emoteButton.TextColor3 = Color3.new(0, 0, 0)
+	emoteButton.Font = Enum.Font.SourceSansBold
+	emoteButton.TextScaled = true
+
+	emoteButton.MouseButton1Click:Connect(function()
+		game.Players.LocalPlayer:LoadCharacterAppearance(emote.Name)
+	end)
+end
+
+BalloonButton.MouseButton1Click:Connect(function()
+	local balloon = game:GetService("ReplicatedStorage"):FindFirstChild("Balloon")
+	if balloon then
+		local clone = balloon:Clone()
+		clone.Parent = game.Players.LocalPlayer.Backpack
+	end
+end)
+
+AppleButton.MouseButton1Click:Connect(function()
+	local apple = game:GetService("ReplicatedStorage"):FindFirstChild("Apple")
+	if apple then
+		local clone = apple:Clone()
+		clone.Parent = game.Players.LocalPlayer.Backpack
+	end
+end)
+
+BlackHoleButton.MouseButton1Click:Connect(function()
+	BlackHoleFrame.Visible = not BlackHoleFrame.Visible
+end)
+
+EmotesButton.MouseButton1Click:Connect(function()
+	Frame.Visible = false
+	EmotesFrame.Visible = true
+end)
+
+BlackHoleOn.MouseButton1Click:Connect(function()
+	if not blackHoleActive then
+		blackHoleActive = true
+		local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+		blackHolePart = Instance.new("Part")
+		blackHolePart.Size = Vector3.new(5, 5, 5)
+		blackHolePart.Shape = Enum.PartType.Ball
+		blackHolePart.Color = Color3.new(0, 0, 0)
+		blackHolePart.Anchored = true
+		blackHolePart.CFrame = character.PrimaryPart.CFrame
+		blackHolePart.Parent = workspace
+
+		game:GetService("RunService").Heartbeat:Connect(function()
+			if blackHoleActive then
+				for _, part in ipairs(workspace:GetDescendants()) do
+					if part:IsA("BasePart") and part ~= blackHolePart then
+						local distance = (part.Position - blackHolePart.Position).magnitude
+						if distance < 50 then
+							local force = (blackHolePart.Position - part.Position).unit * 50
+							part.Velocity = part.Velocity + force
+						end
+					end
+				end
+			end
+		end)
+	end
+end)
+
+BlackHoleOff.MouseButton1Click:Connect(function()
+	blackHoleActive = false
+	if blackHolePart then
+		blackHolePart:Destroy()
+		blackHolePart = nil
+	end
+end)
