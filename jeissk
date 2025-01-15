@@ -23,8 +23,36 @@ local Tabs = {
 
 local Options = Fluent.Options
 
+local dragging = false
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+
+Window.Frame.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Window.Frame.Position
+    end
+end)
+
+Window.Frame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        Window.Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+Window.Frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
 Tabs.Player:AddLabel({
     Text = "Digite o Nick do jogador para teleportar",
+    TextColor3 = Color3.fromRGB(255, 0, 0)
 })
 
 local PlayerNickTextBox = Tabs.Player:AddTextbox({
@@ -52,7 +80,8 @@ Tabs.Player:AddButton({
         else
             warn("Digite um nome válido!")
         end
-    end
+    end,
+    TextColor3 = Color3.fromRGB(255, 255, 0)
 })
 
 Tabs.Stats:AddButton({
@@ -70,6 +99,7 @@ Tabs.Stats:AddButton({
 
         local PingLabel = StatsWindow:AddLabel({
             Text = "Ping: " .. tostring(Player:Ping()) .. "ms",
+            TextColor3 = Color3.fromRGB(0, 255, 255)
         })
         
         local AvatarImage = StatsWindow:AddImage({
@@ -79,24 +109,29 @@ Tabs.Stats:AddButton({
         
         local PlayerName = StatsWindow:AddLabel({
             Text = "Nome: " .. Player.Name,
+            TextColor3 = Color3.fromRGB(255, 255, 255)
         })
         
         local AccountAge = StatsWindow:AddLabel({
             Text = "Data de criação da conta: " .. tostring(Player.AccountAge) .. " dias atrás",
+            TextColor3 = Color3.fromRGB(255, 0, 255)
         })
         
         local FriendCount = StatsWindow:AddLabel({
             Text = "Amigos: " .. tostring(#Player.Friends),
+            TextColor3 = Color3.fromRGB(0, 255, 0)
         })
         
         local Status = StatsWindow:AddLabel({
             Text = "Status: " .. (Player.Status == Enum.PlayerStatus.Online and "Online" or "Offline"),
+            TextColor3 = Color3.fromRGB(255, 165, 0)
         })
         
         local UpdatePing = game:GetService("RunService").Heartbeat:Connect(function()
             PingLabel.Text = "Ping: " .. tostring(Player:Ping()) .. "ms"
         end)
-    end
+    end,
+    TextColor3 = Color3.fromRGB(255, 255, 0)
 })
 
 Tabs.GamePass:AddButton({
@@ -114,7 +149,8 @@ Tabs.GamePass:AddButton({
         handle.Parent = BalloonTool
         BalloonTool.Parent = Player.Backpack
         print("Balão adicionado ao seu inventário!")
-    end
+    end,
+    TextColor3 = Color3.fromRGB(255, 255, 255)
 })
 
 Tabs.GamePass:AddButton({
@@ -132,7 +168,8 @@ Tabs.GamePass:AddButton({
         handle.Parent = AppleTool
         AppleTool.Parent = Player.Backpack
         print("Maçã adicionada ao seu inventário!")
-    end
+    end,
+    TextColor3 = Color3.fromRGB(255, 0, 0)
 })
 
 function AntiBan()
@@ -166,7 +203,8 @@ Tabs.Teleport:AddButton({
         local spawnLocation = CFrame.new(0, 100, 0)
         game.Players.LocalPlayer.Character:MoveTo(spawnLocation)
         print("Teleportado para o Spawn.")
-    end
+    end,
+    TextColor3 = Color3.fromRGB(255, 165, 0)
 })
 
 Tabs.Teleport:AddButton({
@@ -175,5 +213,6 @@ Tabs.Teleport:AddButton({
         local disasterLocation = CFrame.new(50, 100, 50)
         game.Players.LocalPlayer.Character:MoveTo(disasterLocation)
         print("Teleportado para o local dos desastres.")
-    end
+    end,
+    TextColor3 = Color3.fromRGB(0, 255, 255)
 })
