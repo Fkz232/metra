@@ -1,0 +1,83 @@
+local function removeTextures()
+    for _, part in pairs(workspace:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Material = Enum.Material.SmoothPlastic
+            part.TextureID = ""
+            for _, decal in pairs(part:GetChildren()) do
+                if decal:IsA("Decal") then
+                    decal:Destroy()
+                end
+            end
+        end
+    end
+end
+
+local function removeSky()
+    local lighting = game:GetService("Lighting")
+    lighting.Sky = nil
+    lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+end
+
+local function removeLights()
+    for _, light in pairs(workspace:GetDescendants()) do
+        if light:IsA("Light") then
+            light.Enabled = false
+        end
+    end
+end
+
+local function removeLightingEffects()
+    local lighting = game:GetService("Lighting")
+    lighting.BlurEffect:Destroy()
+    lighting.ColorCorrectionEffect:Destroy()
+    lighting.DepthOfFieldEffect:Destroy()
+    lighting.SunRaysEffect:Destroy()
+    lighting.MotionBlurEffect:Destroy()
+    lighting.LensDistortionEffect:Destroy()
+    lighting.FilmGrainEffect:Destroy()
+    lighting.TemperatureEffect:Destroy()
+    lighting.VignetteEffect:Destroy()
+end
+
+local function removeParticles()
+    for _, particle in pairs(workspace:GetDescendants()) do
+        if particle:IsA("ParticleEmitter") then
+            particle.Enabled = false
+            particle:Destroy()
+        end
+    end
+end
+
+local function disableShadows()
+    local lighting = game:GetService("Lighting")
+    lighting.ShadowDistance = 0
+end
+
+local function removeSounds()
+    for _, sound in pairs(workspace:GetDescendants()) do
+        if sound:IsA("Sound") then
+            sound:Stop()
+            sound:Destroy()
+        end
+    end
+end
+
+local function removeFPSLimit()
+    local stats = game:GetService("Stats")
+    local renderingStats = stats.Rendering
+    renderingStats:Set3dRenderDistance(0)
+end
+
+local function optimizeGame()
+    removeTextures()
+    removeSky()
+    removeLights()
+    removeLightingEffects()
+    removeParticles()
+    disableShadows()
+    removeSounds()
+    removeFPSLimit()
+end
+
+optimizeGame()
