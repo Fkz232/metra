@@ -1,174 +1,85 @@
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Window = Fluent:CreateWindow({
+    Title = "YTB: Zuesz",
+    SubTitle = "Beta Version",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(530, 350),
+    Acrylic = true,
+    Theme = "Rose",
+    MinimizeKey = Enum.KeyCode.End
+})
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 400)  -- Tamanho reduzido
-frame.Position = UDim2.new(0.5, -150, 0.5, -200)  -- Centralizado na tela
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-frame.Parent = screenGui
+local Tabs = {
+    Main = Window:AddTab({ Title = "Main", Icon = "" }),
+    Stats = Window:AddTab({ Title = "Stats", Icon = "" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "" }),
+    Teleport = Window:AddTab({ Title = "Island", Icon = "" }),
+    Fruit = Window:AddTab({ Title = "Fruit", Icon = "" }),
+    Raid = Window:AddTab({ Title = "Raid", Icon = "" }),
+    Race = Window:AddTab({ Title = "Race V4", Icon = "" }),
+    Shop = Window:AddTab({ Title = "Shop", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "" }),
+    Hop = Window:AddTab({ Title = "Hop", Icon = "" }),
+    Setting = Window:AddTab({ Title = "Setting", Icon = "" }),
+}
 
-local TweenService = game:GetService("TweenService")
-local introTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-local introTweenGoal = {BackgroundTransparency = 0.5}
-local introTween = TweenService:Create(frame, introTweenInfo, introTweenGoal)
-frame.BackgroundTransparency = 1
-introTween:Play()
+-- Função para obter o nome de usuário e informações da conta
+local function getAccountInfo()
+    local player = game.Players.LocalPlayer
+    local userName = player.Name
+    local accountAge = player.AccountAge
+    local isOnline = player.UserId > 0
+    local friendCount = #player.Friends
+    local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
 
-local border = Instance.new("Frame")
-border.Size = UDim2.new(1, 0, 0, 50)
-border.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-border.Position = UDim2.new(0, 0, 0, 0)
-border.Parent = frame
-
-local line = Instance.new("Frame")
-line.Size = UDim2.new(0, 5, 1, 0)
-line.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-line.Position = UDim2.new(0.05, 0, 0, 0)
-line.Parent = frame
-
-local title = Instance.new("TextLabel")
-title.Text = "Metra Disaster"
-title.TextColor3 = Color3.fromRGB(0, 255, 255)
-title.Size = UDim2.new(1, 0, 0, 50)
-title.Position = UDim2.new(0, 0, 0.2, 0)
-title.TextScaled = true
-title.Parent = frame
-
-local scriptFrame = Instance.new("Frame")
-scriptFrame.Size = UDim2.new(1, 0, 0.7, 0)  -- Ajustado para o tamanho
-scriptFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-scriptFrame.Position = UDim2.new(0, 0, 0, 50)
-scriptFrame.Parent = frame
-
-local button1 = Instance.new("TextButton")
-button1.Text = "Dano de Queda"
-button1.Size = UDim2.new(1, 0, 0, 50)
-button1.Position = UDim2.new(0, 0, 0, 0)
-button1.TextColor3 = Color3.fromRGB(255, 255, 255)
-button1.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-button1.Parent = scriptFrame
-
-local button2 = Instance.new("TextButton")
-button2.Text = "GamePass"
-button2.Size = UDim2.new(1, 0, 0, 50)
-button2.Position = UDim2.new(0, 0, 0, 60)
-button2.TextColor3 = Color3.fromRGB(255, 255, 255)
-button2.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
-button2.Parent = scriptFrame
-
-local function transitionToScript(scriptName)
-    local transitionTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local transitionTweenGoal = {BackgroundTransparency = 1}
-    local transitionTween = TweenService:Create(frame, transitionTweenInfo, transitionTweenGoal)
-    transitionTween:Play()
-
-    transitionTween.Completed:Connect(function()
-        for _, child in pairs(frame:GetChildren()) do
-            if child:IsA("Frame") and child ~= scriptFrame then
-                child:Destroy()
-            end
-        end
-
-        if scriptName == "Dano de Queda" then
-            local fallDamageInterface = Instance.new("Frame")
-            fallDamageInterface.Size = UDim2.new(1, 0, 1, 0)
-            fallDamageInterface.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-            fallDamageInterface.Position = UDim2.new(0, 0, 0, 50)
-            fallDamageInterface.Parent = frame
-
-            local onButton = Instance.new("TextButton")
-            onButton.Text = "Ativar Dano de Queda"
-            onButton.Size = UDim2.new(0.5, 0, 0, 50)
-            onButton.Position = UDim2.new(0.25, 0, 0.2, 0)
-            onButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            onButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            onButton.Parent = fallDamageInterface
-
-            local offButton = Instance.new("TextButton")
-            offButton.Text = "Desativar Dano de Queda"
-            offButton.Size = UDim2.new(0.5, 0, 0, 50)
-            offButton.Position = UDim2.new(0.25, 0, 0.4, 0)
-            offButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            offButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            offButton.Parent = fallDamageInterface
-
-            onButton.MouseButton1Click:Connect(function()
-                game:GetService("Players").PlayerAdded:Connect(function(player)
-                    player.CharacterAdded:Connect(function(character)
-                        local humanoid = character:WaitForChild("Humanoid")
-                        humanoid:SetAttribute("CanFallDamage", true)
-                    end)
-                end)
-            end)
-
-            offButton.MouseButton1Click:Connect(function()
-                game:GetService("Players").PlayerAdded:Connect(function(player)
-                    player.CharacterAdded:Connect(function(character)
-                        local humanoid = character:WaitForChild("Humanoid")
-                        humanoid:SetAttribute("CanFallDamage", false)
-                    end)
-                end)
-            end)
-        elseif scriptName == "GamePass" then
-            local gamePassInterface = Instance.new("Frame")
-            gamePassInterface.Size = UDim2.new(1, 0, 1, 0)
-            gamePassInterface.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
-            gamePassInterface.Position = UDim2.new(0, 0, 0, 50)
-            gamePassInterface.Parent = frame
-
-            local balloonButton = Instance.new("TextButton")
-            balloonButton.Text = "Obter Balão Verde"
-            balloonButton.Size = UDim2.new(0.5, 0, 0, 50)
-            balloonButton.Position = UDim2.new(0.25, 0, 0.2, 0)
-            balloonButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            balloonButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-            balloonButton.Parent = gamePassInterface
-
-            local appleButton = Instance.new("TextButton")
-            appleButton.Text = "Obter Maçã Vermelha"
-            appleButton.Size = UDim2.new(0.5, 0, 0, 50)
-            appleButton.Position = UDim2.new(0.25, 0, 0.4, 0)
-            appleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            appleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-            appleButton.Parent = gamePassInterface
-
-            local compassButton = Instance.new("TextButton")
-            compassButton.Text = "Obter Bússola Amarela"
-            compassButton.Size = UDim2.new(0.5, 0, 0, 50)
-            compassButton.Position = UDim2.new(0.25, 0, 0.6, 0)
-            compassButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-            compassButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-            compassButton.Parent = gamePassInterface
-
-            balloonButton.MouseButton1Click:Connect(function()
-                local player = game.Players.LocalPlayer
-                local balloon = game.ReplicatedStorage:WaitForChild("Green-Balloon"):Clone()
-                balloon.Parent = player.Backpack
-            end)
-
-            appleButton.MouseButton1Click:Connect(function()
-                local player = game.Players.LocalPlayer
-                local apple = game.ReplicatedStorage:WaitForChild("Red-Apple"):Clone()
-                apple.Parent = player.Backpack
-            end)
-
-            compassButton.MouseButton1Click:Connect(function()
-                local player = game.Players.LocalPlayer
-                local compass = game.ReplicatedStorage:WaitForChild("Yellow-Compass"):Clone()
-                compass.Parent = player.Backpack
-            end)
-        end
-
-        local showTweenGoal = {BackgroundTransparency = 0}
-        local showTween = TweenService:Create(frame, transitionTweenInfo, showTweenGoal)
-        showTween:Play()
-    end)
+    return {
+        userName = userName,
+        accountAge = accountAge,
+        isOnline = isOnline,
+        friendCount = friendCount,
+        ping = ping,
+        avatar = player.Character and player.Character:FindFirstChild("Head") and player.Character.Head:FindFirstChild("face") or nil
+    }
 end
 
-button1.MouseButton1Click:Connect(function()
-    transitionToScript("Dano de Queda")
-end)
+-- Exibir as informações no tab "Main"
+local accountInfo = getAccountInfo()
 
-button2.MouseButton1Click:Connect(function()
-    transitionToScript("GamePass")
-end)
+Tabs.Main:AddLabel({ Text = "Nome: " .. accountInfo.userName })
+Tabs.Main:AddLabel({ Text = "Idade da Conta: " .. accountInfo.accountAge .. " dias" })
+Tabs.Main:AddLabel({ Text = "Amigos: " .. accountInfo.friendCount })
+Tabs.Main:AddLabel({ Text = "Status: " .. (accountInfo.isOnline and "Online" or "Offline") })
+Tabs.Main:AddLabel({ Text = "Ping: " .. accountInfo.ping })
+
+if accountInfo.avatar then
+    local avatarImage = Instance.new("ImageLabel")
+    avatarImage.Size = UDim2.new(0, 50, 0, 50)
+    avatarImage.Position = UDim2.new(0, 10, 0, 100)
+    avatarImage.Image = accountInfo.avatar.Texture
+    avatarImage.Parent = Tabs.Main.Content
+end
+
+-- Adiciona uma opção de refrescar os dados
+Tabs.Main:AddButton({
+    Text = "Refresh Account Info",
+    Callback = function()
+        local refreshedInfo = getAccountInfo()
+        -- Atualiza as labels com as novas informações
+        Tabs.Main.Content:ClearAllChildren() -- Limpa os conteúdos anteriores
+        Tabs.Main:AddLabel({ Text = "Nome: " .. refreshedInfo.userName })
+        Tabs.Main:AddLabel({ Text = "Idade da Conta: " .. refreshedInfo.accountAge .. " dias" })
+        Tabs.Main:AddLabel({ Text = "Amigos: " .. refreshedInfo.friendCount })
+        Tabs.Main:AddLabel({ Text = "Status: " .. (refreshedInfo.isOnline and "Online" or "Offline") })
+        Tabs.Main:AddLabel({ Text = "Ping: " .. refreshedInfo.ping })
+
+        if refreshedInfo.avatar then
+            local avatarImage = Instance.new("ImageLabel")
+            avatarImage.Size = UDim2.new(0, 50, 0, 50)
+            avatarImage.Position = UDim2.new(0, 10, 0, 100)
+            avatarImage.Image = refreshedInfo.avatar.Texture
+            avatarImage.Parent = Tabs.Main.Content
+        end
+    end
+})
