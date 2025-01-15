@@ -1,4 +1,6 @@
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 local Window = Fluent:CreateWindow({
     Title = "Natural Disaster Survival",
     SubTitle = "Versão Beta",
@@ -10,14 +12,43 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Principal" }),
-    Stats = Window:AddTab({ Title = "Estatísticas" }),
-    Player = Window:AddTab({ Title = "Jogador" }),
-    Teleport = Window:AddTab({ Title = "Teleportar" }),
-    GamePass = Window:AddTab({ Title = "GamePasses" }),
-    Misc = Window:AddTab({ Title = "Diversos" }),
-    Setting = Window:AddTab({ Title = "Configurações" }),
+    Main = Window:AddTab({ Title = "Principal", Icon = "" }),
+    Stats = Window:AddTab({ Title = "Estatísticas", Icon = "" }),
+    Player = Window:AddTab({ Title = "Jogador", Icon = "" }),
+    Teleport = Window:AddTab({ Title = "Teleportar", Icon = "" }),
+    GamePass = Window:AddTab({ Title = "GamePasses", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Diversos", Icon = "" }),
+    Setting = Window:AddTab({ Title = "Configurações", Icon = "" }),
 }
+
+local Options = Fluent.Options
+
+local dragging = false
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+
+Window.Frame.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = Window.Frame.Position
+    end
+end)
+
+Window.Frame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        Window.Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+Window.Frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
 
 Tabs.Player:AddLabel({
     Text = "Digite o Nick do jogador para teleportar",
@@ -103,6 +134,69 @@ Tabs.Stats:AddButton({
     TextColor3 = Color3.fromRGB(255, 255, 0)
 })
 
+Tabs.GamePass:AddButton({
+    Text = "Balão",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local BalloonTool = Instance.new("Tool")
+        BalloonTool.Name = "Balão"
+        BalloonTool.RequiresHandle = true
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.Anchored = true
+        handle.CanCollide = false
+        handle.Parent = BalloonTool
+        BalloonTool.Parent = Player.Backpack
+        print("Balão adicionado ao seu inventário!")
+    end,
+    TextColor3 = Color3.fromRGB(255, 255, 255)
+})
+
+Tabs.GamePass:AddButton({
+    Text = "Maçã",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local AppleTool = Instance.new("Tool")
+        AppleTool.Name = "Maçã"
+        AppleTool.RequiresHandle = true
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.Anchored = true
+        handle.CanCollide = false
+        handle.Parent = AppleTool
+        AppleTool.Parent = Player.Backpack
+        print("Maçã adicionada ao seu inventário!")
+    end,
+    TextColor3 = Color3.fromRGB(255, 0, 0)
+})
+
+function AntiBan()
+    for i,v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+        if v:IsA("LocalScript") then
+            if v.Name == "General" or v.Name == "Shiftlock"  or v.Name == "FallDamage" or v.Name == "4444" or v.Name == "CamBob" or v.Name == "JumpCD" or v.Name == "Looking" or v.Name == "Run" then
+                v:Destroy()
+            end
+        end
+    end
+    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerScripts:GetDescendants()) do
+        if v:IsA("LocalScript") then
+            if v.Name == "RobloxMotor6DBugFix" or v.Name == "Clans"  or v.Name == "Codes" or v.Name == "CustomForceField" or v.Name == "MenuBloodSp"  or v.Name == "PlayerList" then
+                v:Destroy()
+            end
+        end
+    end
+end
+
+AntiBan()
+
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+    game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(1)
+    game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+end)
+
 Tabs.Teleport:AddButton({
     Text = "Teleportar para o Spawn",
     Callback = function()
@@ -122,4 +216,3 @@ Tabs.Teleport:AddButton({
     end,
     TextColor3 = Color3.fromRGB(0, 255, 255)
 })
-  
