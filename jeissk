@@ -1,188 +1,179 @@
--- Criar GUI
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local BalloonButton = Instance.new("TextButton")
-local AppleButton = Instance.new("TextButton")
-local BlackHoleButton = Instance.new("TextButton")
-local EmotesButton = Instance.new("TextButton")
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+local Window = Fluent:CreateWindow({
+    Title = "Natural Disaster Survival",
+    SubTitle = "Versão Beta",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(530, 350),
+    Acrylic = true,
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.End
+})
 
-local BlackHoleFrame = Instance.new("Frame")
-local BlackHoleOn = Instance.new("TextButton")
-local BlackHoleOff = Instance.new("TextButton")
+local Tabs = {
+    Main = Window:AddTab({ Title = "Principal", Icon = "" }),
+    Stats = Window:AddTab({ Title = "Estatísticas", Icon = "" }),
+    Player = Window:AddTab({ Title = "Jogador", Icon = "" }),
+    Teleport = Window:AddTab({ Title = "Teleportar", Icon = "" }),
+    GamePass = Window:AddTab({ Title = "GamePasses", Icon = "" }),
+    Misc = Window:AddTab({ Title = "Diversos", Icon = "" }),
+    Setting = Window:AddTab({ Title = "Configurações", Icon = "" }),
+}
 
-local EmotesFrame = Instance.new("ScrollingFrame")
+local Options = Fluent.Options
 
-local blackHoleActive = false
-local blackHolePart = nil
+Tabs.Player:AddLabel({
+    Text = "Digite o Nick do jogador para teleportar",
+})
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local PlayerNickTextBox = Tabs.Player:AddTextbox({
+    PlaceholderText = "Digite o Nick...",
+    ClearTextOnFocus = true,
+})
 
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.new(0, 0, 0)
-Frame.Size = UDim2.new(0, 300, 0, 400)
-Frame.Position = UDim2.new(0.5, -150, 0.5, -200)
-Frame.BorderSizePixel = 2
-Frame.Active = true
-Frame.Draggable = true
+Tabs.Player:AddButton({
+    Text = "Teleportar para o Jogador",
+    Callback = function()
+        local Nick = PlayerNickTextBox.Text
+        if Nick and Nick ~= "" then
+            local targetPlayer = game.Players:FindFirstChild(Nick)
+            if targetPlayer then
+                local targetPosition = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if targetPosition then
+                    game.Players.LocalPlayer.Character:MoveTo(targetPosition.Position)
+                    print("Teleportado para " .. Nick)
+                else
+                    warn("O jogador não tem um HumanoidRootPart!")
+                end
+            else
+                warn("Jogador não encontrado!")
+            end
+        else
+            warn("Digite um nome válido!")
+        end
+    end
+})
 
-Title.Parent = Frame
-Title.Text = "Script Criado por Anjo Metraton"
-Title.Size = UDim2.new(1, 0, 0.2, 0)
-Title.BackgroundColor3 = Color3.new(1, 1, 1)
-Title.TextColor3 = Color3.new(1, 0, 0)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextScaled = true
+Tabs.Stats:AddButton({
+    Text = "Mostrar Estatísticas",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local StatsWindow = Fluent:CreateWindow({
+            Title = "Estatísticas do Jogador",
+            SubTitle = "",
+            TabWidth = 160,
+            Size = UDim2.fromOffset(400, 300),
+            Acrylic = true,
+            Theme = "Dark",
+        })
 
-spawn(function()
-	while wait(0.1) do
-		Title.TextColor3 = Color3.fromHSV(tick() % 5 / 5, 1, 1)
-	end
-end)
+        local PingLabel = StatsWindow:AddLabel({
+            Text = "Ping: " .. tostring(Player:Ping()) .. "ms",
+        })
+        
+        local AvatarImage = StatsWindow:AddImage({
+            Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. Player.UserId .. "&width=420&height=420&format=png",
+            Size = UDim2.fromOffset(100, 100)
+        })
+        
+        local PlayerName = StatsWindow:AddLabel({
+            Text = "Nome: " .. Player.Name,
+        })
+        
+        local AccountAge = StatsWindow:AddLabel({
+            Text = "Data de criação da conta: " .. tostring(Player.AccountAge) .. " dias atrás",
+        })
+        
+        local FriendCount = StatsWindow:AddLabel({
+            Text = "Amigos: " .. tostring(#Player.Friends),
+        })
+        
+        local Status = StatsWindow:AddLabel({
+            Text = "Status: " .. (Player.Status == Enum.PlayerStatus.Online and "Online" or "Offline"),
+        })
+        
+        local UpdatePing = game:GetService("RunService").Heartbeat:Connect(function()
+            PingLabel.Text = "Ping: " .. tostring(Player:Ping()) .. "ms"
+        end)
+    end
+})
 
-BalloonButton.Parent = Frame
-BalloonButton.Text = "Balão"
-BalloonButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-BalloonButton.Position = UDim2.new(0.1, 0, 0.25, 0)
-BalloonButton.BackgroundColor3 = Color3.new(1, 1, 1)
-BalloonButton.TextColor3 = Color3.new(0, 0, 0)
-BalloonButton.Font = Enum.Font.SourceSansBold
-BalloonButton.TextScaled = true
+Tabs.GamePass:AddButton({
+    Text = "Balão",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local BalloonTool = Instance.new("Tool")
+        BalloonTool.Name = "Balão"
+        BalloonTool.RequiresHandle = true
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.Anchored = true
+        handle.CanCollide = false
+        handle.Parent = BalloonTool
+        BalloonTool.Parent = Player.Backpack
+        print("Balão adicionado ao seu inventário!")
+    end
+})
 
-AppleButton.Parent = Frame
-AppleButton.Text = "Maçã"
-AppleButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-AppleButton.Position = UDim2.new(0.1, 0, 0.4, 0)
-AppleButton.BackgroundColor3 = Color3.new(1, 1, 1)
-AppleButton.TextColor3 = Color3.new(0, 0, 0)
-AppleButton.Font = Enum.Font.SourceSansBold
-AppleButton.TextScaled = true
+Tabs.GamePass:AddButton({
+    Text = "Maçã",
+    Callback = function()
+        local Player = game.Players.LocalPlayer
+        local AppleTool = Instance.new("Tool")
+        AppleTool.Name = "Maçã"
+        AppleTool.RequiresHandle = true
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.Anchored = true
+        handle.CanCollide = false
+        handle.Parent = AppleTool
+        AppleTool.Parent = Player.Backpack
+        print("Maçã adicionada ao seu inventário!")
+    end
+})
 
-BlackHoleButton.Parent = Frame
-BlackHoleButton.Text = "Black Hole"
-BlackHoleButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-BlackHoleButton.Position = UDim2.new(0.1, 0, 0.55, 0)
-BlackHoleButton.BackgroundColor3 = Color3.new(1, 1, 1)
-BlackHoleButton.TextColor3 = Color3.new(0, 0, 0)
-BlackHoleButton.Font = Enum.Font.SourceSansBold
-BlackHoleButton.TextScaled = true
-
-EmotesButton.Parent = Frame
-EmotesButton.Text = "Emotes"
-EmotesButton.Size = UDim2.new(0.8, 0, 0.15, 0)
-EmotesButton.Position = UDim2.new(0.1, 0, 0.7, 0)
-EmotesButton.BackgroundColor3 = Color3.new(1, 1, 1)
-EmotesButton.TextColor3 = Color3.new(0, 0, 0)
-EmotesButton.Font = Enum.Font.SourceSansBold
-EmotesButton.TextScaled = true
-
-BlackHoleFrame.Parent = ScreenGui
-BlackHoleFrame.Visible = false
-BlackHoleFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-BlackHoleFrame.Size = UDim2.new(0, 300, 0, 200)
-BlackHoleFrame.Position = UDim2.new(0.5, -150, 0.5, 100)
-BlackHoleFrame.BorderSizePixel = 2
-
-BlackHoleOn.Parent = BlackHoleFrame
-BlackHoleOn.Text = "On"
-BlackHoleOn.Size = UDim2.new(0.4, 0, 0.5, 0)
-BlackHoleOn.Position = UDim2.new(0.05, 0, 0.25, 0)
-BlackHoleOn.BackgroundColor3 = Color3.new(0, 1, 0)
-BlackHoleOn.TextColor3 = Color3.new(0, 0, 0)
-BlackHoleOn.Font = Enum.Font.SourceSansBold
-BlackHoleOn.TextScaled = true
-
-BlackHoleOff.Parent = BlackHoleFrame
-BlackHoleOff.Text = "Off"
-BlackHoleOff.Size = UDim2.new(0.4, 0, 0.5, 0)
-BlackHoleOff.Position = UDim2.new(0.55, 0, 0.25, 0)
-BlackHoleOff.BackgroundColor3 = Color3.new(1, 0, 0)
-BlackHoleOff.TextColor3 = Color3.new(0, 0, 0)
-BlackHoleOff.Font = Enum.Font.SourceSansBold
-BlackHoleOff.TextScaled = true
-
-EmotesFrame.Parent = ScreenGui
-EmotesFrame.Visible = false
-EmotesFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-EmotesFrame.Size = UDim2.new(0, 300, 0, 400)
-EmotesFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-EmotesFrame.ScrollBarThickness = 10
-
-local emotes = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):WaitForChild("EmoteTriggers")
-
-for i, emote in ipairs(emotes:GetChildren()) do
-	local emoteButton = Instance.new("TextButton")
-	emoteButton.Parent = EmotesFrame
-	emoteButton.Text = emote.Name
-	emoteButton.Size = UDim2.new(1, -10, 0, 50)
-	emoteButton.Position = UDim2.new(0, 5, 0, (i - 1) * 60)
-	emoteButton.BackgroundColor3 = Color3.new(1, 1, 1)
-	emoteButton.TextColor3 = Color3.new(0, 0, 0)
-	emoteButton.Font = Enum.Font.SourceSansBold
-	emoteButton.TextScaled = true
-
-	emoteButton.MouseButton1Click:Connect(function()
-		game.Players.LocalPlayer:LoadCharacterAppearance(emote.Name)
-	end)
+function AntiBan()
+    for i,v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+        if v:IsA("LocalScript") then
+            if v.Name == "General" or v.Name == "Shiftlock"  or v.Name == "FallDamage" or v.Name == "4444" or v.Name == "CamBob" or v.Name == "JumpCD" or v.Name == "Looking" or v.Name == "Run" then
+                v:Destroy()
+            end
+        end
+    end
+    for i,v in pairs(game:GetService("Players").LocalPlayer.PlayerScripts:GetDescendants()) do
+        if v:IsA("LocalScript") then
+            if v.Name == "RobloxMotor6DBugFix" or v.Name == "Clans"  or v.Name == "Codes" or v.Name == "CustomForceField" or v.Name == "MenuBloodSp"  or v.Name == "PlayerList" then
+                v:Destroy()
+            end
+        end
+    end
 end
 
-BalloonButton.MouseButton1Click:Connect(function()
-	local balloon = game:GetService("ReplicatedStorage"):FindFirstChild("Balloon")
-	if balloon then
-		local clone = balloon:Clone()
-		clone.Parent = game.Players.LocalPlayer.Backpack
-	end
+AntiBan()
+
+game:GetService("Players").LocalPlayer.Idled:connect(function()
+    game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    wait(1)
+    game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 end)
 
-AppleButton.MouseButton1Click:Connect(function()
-	local apple = game:GetService("ReplicatedStorage"):FindFirstChild("Apple")
-	if apple then
-		local clone = apple:Clone()
-		clone.Parent = game.Players.LocalPlayer.Backpack
-	end
-end)
+Tabs.Teleport:AddButton({
+    Text = "Teleportar para o Spawn",
+    Callback = function()
+        local spawnLocation = CFrame.new(0, 100, 0)
+        game.Players.LocalPlayer.Character:MoveTo(spawnLocation)
+        print("Teleportado para o Spawn.")
+    end
+})
 
-BlackHoleButton.MouseButton1Click:Connect(function()
-	BlackHoleFrame.Visible = not BlackHoleFrame.Visible
-end)
-
-EmotesButton.MouseButton1Click:Connect(function()
-	Frame.Visible = false
-	EmotesFrame.Visible = true
-end)
-
-BlackHoleOn.MouseButton1Click:Connect(function()
-	if not blackHoleActive then
-		blackHoleActive = true
-		local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-		blackHolePart = Instance.new("Part")
-		blackHolePart.Size = Vector3.new(5, 5, 5)
-		blackHolePart.Shape = Enum.PartType.Ball
-		blackHolePart.Color = Color3.new(0, 0, 0)
-		blackHolePart.Anchored = true
-		blackHolePart.CFrame = character.PrimaryPart.CFrame
-		blackHolePart.Parent = workspace
-
-		game:GetService("RunService").Heartbeat:Connect(function()
-			if blackHoleActive then
-				for _, part in ipairs(workspace:GetDescendants()) do
-					if part:IsA("BasePart") and part ~= blackHolePart then
-						local distance = (part.Position - blackHolePart.Position).magnitude
-						if distance < 50 then
-							local force = (blackHolePart.Position - part.Position).unit * 50
-							part.Velocity = part.Velocity + force
-						end
-					end
-				end
-			end
-		end)
-	end
-end)
-
-BlackHoleOff.MouseButton1Click:Connect(function()
-	blackHoleActive = false
-	if blackHolePart then
-		blackHolePart:Destroy()
-		blackHolePart = nil
-	end
-end)
+Tabs.Teleport:AddButton({
+    Text = "Teleportar para o local dos desastres",
+    Callback = function()
+        local disasterLocation = CFrame.new(50, 100, 50)
+        game.Players.LocalPlayer.Character:MoveTo(disasterLocation)
+        print("Teleportado para o local dos desastres.")
+    end
+})
