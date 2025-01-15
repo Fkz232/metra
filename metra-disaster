@@ -33,6 +33,8 @@ local function getAccountInfo()
     local isOnline = player.UserId > 0
     local friendCount = #player.Friends
     local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+    local avatar = player.Character and player.Character:FindFirstChild("Head") and player.Character.Head:FindFirstChild("face")
+    local avatarTexture = avatar and avatar.TextureId or ""
 
     return {
         userName = userName,
@@ -40,46 +42,39 @@ local function getAccountInfo()
         isOnline = isOnline,
         friendCount = friendCount,
         ping = ping,
-        avatar = player.Character and player.Character:FindFirstChild("Head") and player.Character.Head:FindFirstChild("face") or nil
+        avatar = avatarTexture
     }
 end
 
--- Exibir as informações no tab "Main"
-local accountInfo = getAccountInfo()
+-- Função para exibir as informações no tab "Main"
+local function displayAccountInfo()
+    local accountInfo = getAccountInfo()
 
-Tabs.Main:AddLabel({ Text = "Nome: " .. accountInfo.userName })
-Tabs.Main:AddLabel({ Text = "Idade da Conta: " .. accountInfo.accountAge .. " dias" })
-Tabs.Main:AddLabel({ Text = "Amigos: " .. accountInfo.friendCount })
-Tabs.Main:AddLabel({ Text = "Status: " .. (accountInfo.isOnline and "Online" or "Offline") })
-Tabs.Main:AddLabel({ Text = "Ping: " .. accountInfo.ping })
+    -- Adiciona as labels na interface
+    Tabs.Main:ClearAllChildren()  -- Limpa qualquer conteúdo antigo antes de adicionar as novas informações
+    Tabs.Main:AddLabel({ Text = "Nome: " .. accountInfo.userName })
+    Tabs.Main:AddLabel({ Text = "Idade da Conta: " .. accountInfo.accountAge .. " dias" })
+    Tabs.Main:AddLabel({ Text = "Amigos: " .. accountInfo.friendCount })
+    Tabs.Main:AddLabel({ Text = "Status: " .. (accountInfo.isOnline and "Online" or "Offline") })
+    Tabs.Main:AddLabel({ Text = "Ping: " .. accountInfo.ping })
 
-if accountInfo.avatar then
-    local avatarImage = Instance.new("ImageLabel")
-    avatarImage.Size = UDim2.new(0, 50, 0, 50)
-    avatarImage.Position = UDim2.new(0, 10, 0, 100)
-    avatarImage.Image = accountInfo.avatar.Texture
-    avatarImage.Parent = Tabs.Main.Content
+    -- Adiciona a imagem do avatar, se houver
+    if accountInfo.avatar ~= "" then
+        local avatarImage = Instance.new("ImageLabel")
+        avatarImage.Size = UDim2.new(0, 50, 0, 50)
+        avatarImage.Position = UDim2.new(0, 10, 0, 100)
+        avatarImage.Image = accountInfo.avatar
+        avatarImage.Parent = Tabs.Main.Content
+    end
 end
+
+-- Exibe as informações de conta inicialmente
+displayAccountInfo()
 
 -- Adiciona uma opção de refrescar os dados
 Tabs.Main:AddButton({
     Text = "Refresh Account Info",
     Callback = function()
-        local refreshedInfo = getAccountInfo()
-        -- Atualiza as labels com as novas informações
-        Tabs.Main.Content:ClearAllChildren() -- Limpa os conteúdos anteriores
-        Tabs.Main:AddLabel({ Text = "Nome: " .. refreshedInfo.userName })
-        Tabs.Main:AddLabel({ Text = "Idade da Conta: " .. refreshedInfo.accountAge .. " dias" })
-        Tabs.Main:AddLabel({ Text = "Amigos: " .. refreshedInfo.friendCount })
-        Tabs.Main:AddLabel({ Text = "Status: " .. (refreshedInfo.isOnline and "Online" or "Offline") })
-        Tabs.Main:AddLabel({ Text = "Ping: " .. refreshedInfo.ping })
-
-        if refreshedInfo.avatar then
-            local avatarImage = Instance.new("ImageLabel")
-            avatarImage.Size = UDim2.new(0, 50, 0, 50)
-            avatarImage.Position = UDim2.new(0, 10, 0, 100)
-            avatarImage.Image = refreshedInfo.avatar.Texture
-            avatarImage.Parent = Tabs.Main.Content
-        end
+        displayAccountInfo()  -- Atualiza as labels com as novas informações
     end
 })
